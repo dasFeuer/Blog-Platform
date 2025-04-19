@@ -2,14 +2,13 @@ package com.devbarun.blog.controllers;
 
 import com.devbarun.blog.domian.dtos.PostDto;
 import com.devbarun.blog.domian.entities.Post;
+import com.devbarun.blog.domian.entities.User;
 import com.devbarun.blog.mappers.PostMapper;
 import com.devbarun.blog.services.PostService;
+import com.devbarun.blog.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +22,8 @@ public class PostController {
 
     private final PostMapper postMapper;
 
+    private final UserService userService;
+
     @GetMapping
     public ResponseEntity<List<PostDto>> getAllPosts(
             @RequestParam(required = false) UUID categoryId,
@@ -32,4 +33,16 @@ public class PostController {
         List<PostDto> postDtos = posts.stream().map(postMapper::toDto).toList();
         return ResponseEntity.ok(postDtos);
     }
+
+
+    @GetMapping(path = "/drafts")
+    public ResponseEntity<List<PostDto>> getDrafts(@RequestAttribute UUID userId) {
+        User loggnedInUser = userService.getUserById(userId);
+        List<Post> draftPosts = postService.getDraftPosts(loggnedInUser);
+        List<PostDto> postDtos = draftPosts.stream().map(postMapper::toDto).toList();
+        return ResponseEntity.ok(postDtos);
+    }
+
+
+
 }
