@@ -1,13 +1,16 @@
 package com.devbarun.blog.controllers;
 
 import com.devbarun.blog.domian.CreatePostRequest;
+import com.devbarun.blog.domian.UpdatePostRequest;
 import com.devbarun.blog.domian.dtos.CreatePostRequestDto;
 import com.devbarun.blog.domian.dtos.PostDto;
+import com.devbarun.blog.domian.dtos.UpdatePostRequestDto;
 import com.devbarun.blog.domian.entities.Post;
 import com.devbarun.blog.domian.entities.User;
 import com.devbarun.blog.mappers.PostMapper;
 import com.devbarun.blog.services.PostService;
 import com.devbarun.blog.services.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +60,28 @@ public class PostController {
         return new ResponseEntity<>(createdPostDto, HttpStatus.CREATED);
     }
 
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<PostDto> updatePost(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdatePostRequestDto updatePostRequestDto) {
 
+        UpdatePostRequest updatePostRequest = postMapper.toUpdatePostRequest(updatePostRequestDto);
+        Post updatedPost = postService.updatePost(id, updatePostRequest);
+        PostDto updatedPostDto = postMapper.toDto(updatedPost);
+        return ResponseEntity.ok(updatedPostDto);
 
+    }
+
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<PostDto> getPostById(@PathVariable UUID id) {
+        Post post = postService.getPostById(id);
+        PostDto postDto = postMapper.toDto(post);
+        return ResponseEntity.ok(postDto);
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
+        postService.deletePost(id);
+        return ResponseEntity.noContent().build();
+    }
 }
